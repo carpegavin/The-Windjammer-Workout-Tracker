@@ -2,20 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const LibrarySchema = new Schema({
-    name: {
-      type: String,
-      unique: true
-    },
-    books: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Book"
-      }
-    ]
-  });
-  
-  // day 
+// date
   
   // exercise
     // type
@@ -26,6 +13,42 @@ const LibrarySchema = new Schema({
     // distance
     // duration
 
-  const Library = mongoose.model("Library", LibrarySchema);
+const WorkoutSchema = new Schema({
+  date: {
+    type: Date,
+    default: Date.now,
+  },
   
-  module.exports = Library;
+  exercise: [{
+      
+      type: {
+        type: String,
+    },
+      name: {
+        type: String,
+    },
+      weight: {
+        type: Number,
+    },
+      reps: {
+        type: Number,
+    },
+      sets: {
+        type: Number,
+    },
+      distance: {
+        type: Number,
+    },
+      duration: {
+        type: Number,
+    },
+  }]
+});
+
+const Workout = mongoose.model("Workout", WorkoutSchema);
+module.exports = Workout;
+
+  
+  
+
+  
