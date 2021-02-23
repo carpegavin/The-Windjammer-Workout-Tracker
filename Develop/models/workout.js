@@ -2,11 +2,30 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const workoutSchema = new Schema({
-  author: String,
-  title: String
-});
+const LibrarySchema = new Schema({
+    name: {
+      type: String,
+      unique: true
+    },
+    books: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Book"
+      }
+    ]
+  });
+  
+  // day 
+  
+  // exercise
+    // type
+    // name
+    // weight
+    // reps
+    // sets
+    // distance
+    // duration
 
-const Workout = mongoose.model("workout", workoutSchema);
-
-module.exports = Workout;
+  const Library = mongoose.model("Library", LibrarySchema);
+  
+  module.exports = Library;
