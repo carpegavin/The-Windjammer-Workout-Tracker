@@ -1,12 +1,11 @@
 const path = require("path");
 const router = require("express").Router();
 const Workout = require("../models");
-const id = req.params.id;
-const body = req.body;
+// const id = req.params.id;
+// const body = req.body;
 const db = require("../models")
 
-module.exports = app;
-
+module.exports = app => {
 // get workouts
 app.get("/api/workouts", (req, res) => {
   db.Workout.aggregate([{
@@ -25,9 +24,9 @@ app.get("/api/workouts", (req, res) => {
 
 
   // put workouts 
-app.put("/api/workouts/:id", ({body}, res) => {
+app.put("/api/workouts/:id", ({body, params}, res) => {
     db.Workout.findOneAndUpdate (
-        req.params.id,{
+        {_id: params.id},{
         $push: { exercises: body }
         },
     (err,data)=>{
@@ -35,7 +34,7 @@ app.put("/api/workouts/:id", ({body}, res) => {
       } else{console.log(data)
       res.send(data)}
     });
-    },
+    });
 // post workouts
 
 app.post("/api/workouts", (req, res) => {
@@ -46,7 +45,7 @@ app.post("/api/workouts", (req, res) => {
       .catch(err => {
         res.json(err);
       });
-  }));
+  });
 
   // get workouts range
   app.get("/api/workouts/range", (req, res) => {
@@ -68,13 +67,14 @@ app.post("/api/workouts", (req, res) => {
 // stats, index, exercise
 
 app.get("/stats", (req, res) => {
-    re.send("/public/stats.html");
+    res.sendFile(path.join(__dirname, "../public/stats.html"));
 });
 
 app.get("/exercise", (req, res) => {
-    re.send("/public/exercise.html");
+    res.sendFile(path.join(__dirname, "../public/exercise.html"));
 });
 
 app.get("/index", (req, res) => {
-    re.send("/public/index.html");
+    res.send("/public/index.html");
 });
+};
