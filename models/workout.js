@@ -45,6 +45,10 @@ const WorkoutSchema = new Schema({
   }]
 });
 
+// exercise duration??
+
+
+
 const Workout = mongoose.model("Workout", WorkoutSchema);
 module.exports = Workout;
 
