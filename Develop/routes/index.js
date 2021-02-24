@@ -11,16 +11,15 @@ module.exports = app;
 app.get("/api/workouts", (req, res) => {
   db.Workout.aggregate([{
       $addFields:{
-          "totalDuration":{
-              $sum: "$exercises.duration"
-          }
+        "totalDuration":{
+        $sum: "$exercises.duration"
+        }
       }
   }],
   (err,data)=>{
       if(err){res.send(error)
-      }
-       else{console.log(data)
-          res.send(data)}
+      } else{console.log(data)
+        res.send(data)}
       })
   })
 
@@ -31,13 +30,11 @@ app.put("/api/workouts/:id", ({body}, res) => {
         req.params.id,{
         $push: { exercises: body }
         },
-        (err,data)=>{
-          if(err){res.send(error)
-          }
-          else{console.log(data)
-          res.send(data)}
-        }
-    );
+    (err,data)=>{
+      if(err){res.send(error)
+      } else{console.log(data)
+      res.send(data)}
+    });
     },
 // post workouts
 
