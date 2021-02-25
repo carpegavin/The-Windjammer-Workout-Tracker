@@ -14,7 +14,7 @@
 
 <br>
 
-![https://github.com/carpegavin/The-Windjammer-Workout-Tracker/blob/main/public/assets/GIF.gif?raw=true]()
+![](https://github.com/carpegavin/The-Windjammer-Workout-Tracker/blob/main/public/assets/GIF.gif?raw=true)
 
 
 ### `Questions?`
