@@ -56,7 +56,8 @@ route.post("/api/workouts", (req, res) => {
         $sum: '$exercises.duration',
         }}
       }])
-      .limit(20)
+      .sort({'day': -1})
+      .limit(7)
       .then((data) => {
         console.log(data);
         console.log("hello");
