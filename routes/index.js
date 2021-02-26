@@ -1,6 +1,6 @@
 const path = require("path");
-const router = require("express").Router();
-const Workout = require("../models");
+// const router = require("express").Router();
+// const Workout = require("../models");
 // const id = req.params.id;
 // const body = req.body;
 const db = require("../models")
