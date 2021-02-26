@@ -6,7 +6,7 @@
 
 <br>
 
-### Please enjoy the deployed application [HERE](https://the-windjammer-workout-tracker.herokuapp.com/)
+### Please enjoy the deployed application [HERE](https://jammer-workout-tracker.herokuapp.com/)
 <br>
 
 ### GNU License
