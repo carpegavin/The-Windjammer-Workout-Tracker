@@ -1,4 +1,10 @@
 node_modules
+.env
+.env.*
+!.env.example
+public/vendor/
+coverage/
+*.log
 .DS_Store
 
 # Images

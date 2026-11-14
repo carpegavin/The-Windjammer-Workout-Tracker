@@ -1,49 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
-  <link rel="stylesheet" href="style.css" />
-  <title>Fitness Tracker</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+<title>Last workout | Windjammer</title>
 </head>
-
-<body>
-  <nav>
-    <a href="/">Fitness Tracker</a>
-    <a href="/stats">Dashboard</a>
-  </nav>
-  <div class="wrapper workout">
-    <header>
-      <h1>Fitness Tracker</h1>
-    </header>
-    <div class="ui container workout">
-      <div class="ui raised card m-auto">
-        <div class="prev-workout">
-          <h3>Last Workout</h3>
-          <div>
-            <div class="workout-stats"></div>
-            <div class="buttons">
-              <a id="continue-btn" href="/exercise?" class="huge ui blue button">Continue Workout</a>
-              <a href="/exercise" class="huge positive ui button">New Workout</a>
-            </div>
-          </div>
-        </div>
-        <div class="new-workout">
-          <h3>Create Your First Workout</h3>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-  <div id="toast">
-    Workout Added Successfully!
-  </div>
-  <script src="/api.js"></script>
-  <script src="/workout.js"></script>
-  <script src="/index.js"></script>
+<body><a class="skip-link" href="#main">Skip to content</a><nav aria-label="Main navigation"><a class="brand" href="/">Windjammer <span>Workout Tracker</span></a><div class="nav-links"><a href="/">Summary</a><a href="/stats">Dashboard</a><button class="logout button-link" type="button">Sign out</button></div></nav><main id="main" class="wrapper"><header><h1>Your workout</h1><p>Keep moving. Keep track.</p></header><section class="card summary" aria-labelledby="last-heading"><h2 id="last-heading">Last workout</h2><p id="page-status" class="status" role="status" aria-live="polite"></p><button id="retry" type="button" hidden>Try again</button><div class="workout-stats"></div><div class="buttons"><a id="continue-btn" href="/exercise" class="button" hidden>Add to this workout</a><a href="/exercise" class="button positive">New workout</a></div></section></main><script src="/api.js"></script><script src="/metrics.js"></script><script src="/workout.js"></script><script src="/auth.js"></script>
 </body>
-
 </html>

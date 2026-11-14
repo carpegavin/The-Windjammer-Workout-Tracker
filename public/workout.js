@@ -1,84 +1,21 @@
-async function initWorkout() {
-  const lastWorkout = await API.getLastWorkout();
-  console.log("Last workout:", lastWorkout);
-  if (lastWorkout) {
-    document
-      .querySelector("a[href='/exercise?']")
-      .setAttribute("href", `/exercise?id=${lastWorkout._id}`);
-
-    const workoutSummary = {
-      date: formatDate(lastWorkout.day),
-      totalDuration: lastWorkout.totalDuration,
-      numExercises: lastWorkout.exercises.length,
-      ...tallyExercises(lastWorkout.exercises)
-    };
-
-    renderWorkoutSummary(workoutSummary);
-  } else {
-    renderNoWorkoutText()
+(() => {
+  const container = document.querySelector(".workout-stats"), status = document.querySelector("#page-status"), retry = document.querySelector("#retry"), continueLink = document.querySelector("#continue-btn");
+  async function load() {
+    retry.hidden = true; continueLink.hidden = true; status.textContent = "Loading your latest workout…"; status.dataset.state = "loading"; container.replaceChildren();
+    try {
+      const workout = await API.getLastWorkout();
+      if (!workout) { status.textContent = "No workouts yet. Start your first workout below; it is saved when you add an exercise."; status.dataset.state = "empty"; return; }
+      const totals = WorkoutMetrics.summarize(workout.exercises);
+      const rows = {
+        Date: new Date(workout.day).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
+        "Workout duration": totals.duration.toLocaleString() + " minutes", "Exercises logged": workout.exercises.length,
+        "Resistance volume (load × sets × reps)": totals.volume.toLocaleString() + " lb",
+        "Sets performed": totals.sets, "Repetitions performed": totals.repetitions, "Cardio distance": totals.distance.toLocaleString() + " miles"
+      };
+      Object.entries(rows).forEach(([label, value]) => { const row = document.createElement("p"), strong = document.createElement("strong"); strong.textContent = label + ": "; row.append(strong, document.createTextNode(String(value))); container.append(row); });
+      continueLink.href = "/exercise?id=" + encodeURIComponent(workout._id); continueLink.hidden = false;
+      status.textContent = new URLSearchParams(location.search).has("saved") ? "Your exercise was saved." : ""; status.dataset.state = "success";
+    } catch (error) { status.textContent = error.message; status.dataset.state = "error"; retry.hidden = false; }
   }
-}
-
-function tallyExercises(exercises) {
-  const tallied = exercises.reduce((acc, curr) => {
-    if (curr.type === "resistance") {
-      acc.totalWeight = (acc.totalWeight || 0) + curr.weight;
-      acc.totalSets = (acc.totalSets || 0) + curr.sets;
-      acc.totalReps = (acc.totalReps || 0) + curr.reps;
-    } else if (curr.type === "cardio") {
-      acc.totalDistance = (acc.totalDistance || 0) + curr.distance;
-    }
-    return acc;
-  }, {});
-  return tallied;
-}
-
-function formatDate(date) {
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  };
-
-  return new Date(date).toLocaleDateString(options);
-}
-
-function renderWorkoutSummary(summary) {
-  const container = document.querySelector(".workout-stats");
-
-  const workoutKeyMap = {
-    date: "Date",
-    totalDuration: "Total Workout Duration",
-    numExercises: "Exercises Performed",
-    totalWeight: "Total Weight Lifted",
-    totalSets: "Total Sets Performed",
-    totalReps: "Total Reps Performed",
-    totalDistance: "Total Distance Covered"
-  };
-
-  Object.keys(summary).forEach(key => {
-    const p = document.createElement("p");
-    const strong = document.createElement("strong");
-
-    strong.textContent = workoutKeyMap[key];
-    const textNode = document.createTextNode(`: ${summary[key]}`);
-
-    p.appendChild(strong);
-    p.appendChild(textNode);
-
-    container.appendChild(p);
-  });
-}
-
-function renderNoWorkoutText() {
-  const container = document.querySelector(".workout-stats");
-  const p = document.createElement("p");
-  const strong = document.createElement("strong");
-  strong.textContent = "You have not created a workout yet!"
-
-  p.appendChild(strong);
-  container.appendChild(p);
-}
-
-initWorkout();
+  retry.addEventListener("click", load); load();
+})();

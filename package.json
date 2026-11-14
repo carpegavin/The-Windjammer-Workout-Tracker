@@ -1,19 +1,31 @@
 {
-  "name": "mongoose_skeleton",
+  "name": "windjammer-workout-tracker",
   "version": "1.0.0",
-  "description": "",
+  "description": "A private, single-owner workout tracker",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "watch": "nodemon server.js",
-    "seed": "node seeders/seed.js"
+    "test": "node --test",
+    "start": "node --env-file-if-exists=.env server.js",
+    "watch": "node --env-file-if-exists=.env --watch server.js",
+    "build": "node scripts/build.js",
+    "seed": "node --env-file-if-exists=.env seeders/seed.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
   "dependencies": {
-    "express": "^4.16.3",
-    "mongoose": "^5.3.16",
-    "morgan": "^1.9.1"
+    "chart.js": "4.6.1",
+    "express": "5.3.0",
+    "express-rate-limit": "8.7.4",
+    "helmet": "8.3.0",
+    "mongoose": "9.12.1"
+  },
+  "devDependencies": {
+    "jsdom": "^31.0.1",
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "7.3.2"
   }
 }
