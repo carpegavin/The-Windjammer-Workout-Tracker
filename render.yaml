@@ -3,7 +3,7 @@ services:
     name: windjammer-workout-tracker
     runtime: node
     plan: free
-    branch: fix/workout-reliability
+    branch: main
     buildCommand: npm ci --omit=dev && npm run build
     startCommand: npm start
     healthCheckPath: /healthz
