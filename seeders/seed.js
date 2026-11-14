@@ -1,136 +1,54 @@
-let mongoose = require("mongoose");
-let db = require("../models");
+const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/Workout", {
-  useNewUrlParser: true,
-  useFindAndModify: false
-});
-
-let workoutSeed = [
-  {
-    day: new Date().setDate(new Date().getDate()-10),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Bicep Curl",
-        duration: 20,
-        weight: 100,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date().setDate(new Date().getDate()-9),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Lateral Pull",
-        duration: 20,
-        weight: 300,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date().setDate(new Date().getDate()-8),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Push Press",
-        duration: 25,
-        weight: 185,
-        reps: 8,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date().setDate(new Date().getDate()-7),
-    exercises: [
-      {
-        type: "cardio",
-        name: "Running",
-        duration: 25,
-        distance: 4
-      }
-    ]
-  },
-  {
-    day: new Date().setDate(new Date().getDate()-6),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Bench Press",
-        duration: 20,
-        weight: 285,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date().setDate(new Date().getDate()-5),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Bench Press",
-        duration: 20,
-        weight: 300,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date(new Date().setDate(new Date().getDate() - 4)),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Quad Press",
-        duration: 30,
-        weight: 300,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date(new Date().setDate(new Date().getDate() - 3)),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Bench Press",
-        duration: 20,
-        weight: 300,
-        reps: 10,
-        sets: 4
-      }
-    ]
-  },
-  {
-    day: new Date(new Date().setDate(new Date().getDate() - 2)),
-    exercises: [
-      {
-        type: "resistance",
-        name: "Military Press",
-        duration: 20,
-        weight: 300,
-        reps: 10,
-        sets: 4
-      }
-    ]
+function validateDemoTarget(env) {
+  if (env.NODE_ENV === 'production' || env.SEED_DEMO !== '1') {
+    throw new Error('Demo seeding requires SEED_DEMO=1 and is forbidden in production.');
   }
-];
+  let target;
+  try { target = new URL(env.MONGODB_URI); } catch {
+    throw new Error('Set MONGODB_URI explicitly to the disposable windjammer_demo database.');
+  }
+  if (!['mongodb:', 'mongodb+srv:'].includes(target.protocol) || target.pathname !== '/windjammer_demo') {
+    throw new Error('Demo seeding is restricted to the windjammer_demo database.');
+  }
+}
 
-db.Workout.deleteMany({})
-  .then(() => db.Workout.collection.insertMany(workoutSeed))
-  .then(data => {
-    console.log(data.result.n + " records inserted!");
-    process.exit(0);
-  })
-  .catch(err => {
-    console.error(err);
-    process.exit(1);
+function demoWorkouts(now = new Date()) {
+  return [['Bicep Curl', 100], ['Lateral Pull', 150], ['Push Press', 85]].map(([name, weight], index) => {
+    const day = new Date(now);
+    day.setDate(day.getDate() - (3 - index));
+    return {
+      _id: new mongoose.Types.ObjectId(`00000000000000000000000${index + 1}`), day,
+      exercises: [{ type: 'resistance', name, weight, reps: 10, sets: 3, duration: 20 }]
+    };
   });
+}
+
+async function seedDemo(Workout, env, now) {
+  validateDemoTarget(env);
+  let inserted = 0;
+  for (const fixture of demoWorkouts(now)) {
+    if (!await Workout.exists({ _id: fixture._id })) {
+      await Workout.create(fixture);
+      inserted += 1;
+    }
+  }
+  return inserted;
+}
+
+async function main() {
+  validateDemoTarget(process.env);
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+    const inserted = await seedDemo(require('../models').Workout, process.env);
+    console.log(`Added ${inserted} demo workouts. Existing records were preserved.`);
+  } finally { await mongoose.disconnect(); }
+}
+
+if (require.main === module) {
+  main().catch(() => {
+    console.error('Demo seeding failed. Verify the explicit demo database and connection settings.');
+    process.exitCode = 1;
+  });
+}
+module.exports = { validateDemoTarget, demoWorkouts, seedDemo };
