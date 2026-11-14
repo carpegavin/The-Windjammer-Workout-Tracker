@@ -1,156 +1,43 @@
-const workoutTypeSelect = document.querySelector("#type");
-const cardioForm = document.querySelector(".cardio-form");
-const resistanceForm = document.querySelector(".resistance-form");
-const cardioNameInput = document.querySelector("#cardio-name");
-const nameInput = document.querySelector("#name");
-const weightInput = document.querySelector("#weight");
-const setsInput = document.querySelector("#sets");
-const repsInput = document.querySelector("#reps");
-const durationInput = document.querySelector("#duration");
-const resistanceDurationInput = document.querySelector("#resistance-duration");
-const distanceInput = document.querySelector("#distance");
-const completeButton = document.querySelector("button.complete");
-const addButton = document.querySelector("button.add-another");
-const toast = document.querySelector("#toast");
-const newWorkout = document.querySelector(".new-workout")
-
-let workoutType = null;
-let shouldNavigateAway = false;
-
-async function initExercise() {
-  let workout;
-
-  if (location.search.split("=")[1] === undefined) {
-    workout = await API.createWorkout()
-    console.log(workout)
+(() => {
+  const form = document.querySelector("#exercise-form"), select = document.querySelector("#type"), status = document.querySelector("#form-status");
+  const add = document.querySelector(".add-another"), finish = document.querySelector(".complete"), fields = [...form.querySelectorAll("input")];
+  let pending = false, dirty = false;
+  let workoutId = new URLSearchParams(location.search).get("id");
+  const invalidId = workoutId !== null && !/^[a-f\d]{24}$/i.test(workoutId);
+  function readExercise() {
+    const type = select.value, value = id => document.getElementById(id).value.trim();
+    const numeric = id => value(id) === "" ? NaN : Number(value(id));
+    return type === "cardio" ? { type, name: value("cardio-name"), duration: numeric("duration"), distance: numeric("distance") }
+      : { type, name: value("name"), duration: numeric("resistance-duration"), weight: numeric("weight"), sets: numeric("sets"), reps: numeric("reps") };
   }
-  if (workout) {
-    location.search = "?id=" + workout._id;
+  function validate() { const error = WorkoutMetrics.validateExercise(readExercise()); add.disabled = finish.disabled = pending || invalidId || Boolean(error); return error; }
+  function showType() {
+    for (const type of ["cardio", "resistance"]) {
+      const group = form.querySelector("." + type + "-form"); group.hidden = select.value !== type;
+      group.querySelectorAll("input").forEach(input => { input.disabled = group.hidden || pending; });
+    }
+    validate();
   }
-
-}
-
-initExercise();
-
-function handleWorkoutTypeChange(event) {
-  workoutType = event.target.value;
-
-  if (workoutType === "cardio") {
-    cardioForm.classList.remove("d-none");
-    resistanceForm.classList.add("d-none");
-  } else if (workoutType === "resistance") {
-    resistanceForm.classList.remove("d-none");
-    cardioForm.classList.add("d-none");
-  } else {
-    cardioForm.classList.add("d-none");
-    resistanceForm.classList.add("d-none");
-  }
-
-  validateInputs();
-}
-
-function validateInputs() {
-  let isValid = true;
-
-  if (workoutType === "resistance") {
-    if (nameInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (weightInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (setsInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (repsInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (resistanceDurationInput.value.trim() === "") {
-      isValid = false;
-    }
-  } else if (workoutType === "cardio") {
-    if (cardioNameInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (durationInput.value.trim() === "") {
-      isValid = false;
-    }
-
-    if (distanceInput.value.trim() === "") {
-      isValid = false;
-    }
-  }
-
-  if (isValid) {
-    completeButton.removeAttribute("disabled");
-    addButton.removeAttribute("disabled");
-  } else {
-    completeButton.setAttribute("disabled", true);
-    addButton.setAttribute("disabled", true);
-  }
-}
-
-async function handleFormSubmit(event) {
-  event.preventDefault();
-
-  let workoutData = {};
-
-  if (workoutType === "cardio") {
-    workoutData.type = "cardio";
-    workoutData.name = cardioNameInput.value.trim();
-    workoutData.distance = Number(distanceInput.value.trim());
-    workoutData.duration = Number(durationInput.value.trim());
-  } else if (workoutType === "resistance") {
-    workoutData.type = "resistance";
-    workoutData.name = nameInput.value.trim();
-    workoutData.weight = Number(weightInput.value.trim());
-    workoutData.sets = Number(setsInput.value.trim());
-    workoutData.reps = Number(repsInput.value.trim());
-    workoutData.duration = Number(resistanceDurationInput.value.trim());
-  }
-
-  await API.addExercise(workoutData);
-  clearInputs();
-  toast.classList.add("success");
-}
-
-function handleToastAnimationEnd() {
-  toast.removeAttribute("class");
-  if (shouldNavigateAway) {
-    location.href = "/";
-  }
-}
-
-function clearInputs() {
-  cardioNameInput.value = "";
-  nameInput.value = "";
-  setsInput.value = "";
-  distanceInput.value = "";
-  durationInput.value = "";
-  repsInput.value = "";
-  resistanceDurationInput.value = "";
-  weightInput.value = "";
-}
-
-if (workoutTypeSelect) {
-  workoutTypeSelect.addEventListener("change", handleWorkoutTypeChange);
-}
-if (completeButton) {
-  completeButton.addEventListener("click", function (event) {
-    shouldNavigateAway = true;
-    handleFormSubmit(event);
+  function setPending(value) { pending = value; form.setAttribute("aria-busy", String(value)); select.disabled = value || invalidId; showType(); }
+  select.addEventListener("change", () => { dirty = true; showType(); status.textContent = ""; });
+  fields.forEach(input => input.addEventListener("input", () => { dirty = true; validate(); }));
+  form.addEventListener("submit", async event => {
+    event.preventDefault(); if (pending || invalidId) return;
+    const error = validate(); if (error) { status.textContent = error; status.dataset.state = "error"; return; }
+    const exercise = readExercise(), shouldFinish = event.submitter === finish;
+    setPending(true); status.textContent = "Saving exercise…"; status.dataset.state = "loading";
+    try {
+      const workout = workoutId ? await API.addExercise(workoutId, exercise) : await API.createWorkout(exercise);
+      workoutId = workout._id;
+      const url = new URL(location.href); url.searchParams.set("id", workoutId); history.replaceState(null, "", url);
+      dirty = false;
+      if (shouldFinish) { pending = false; location.assign("/?saved=1"); return; }
+      fields.forEach(input => { input.value = ""; });
+      status.textContent = "Exercise saved. Add another exercise, or return to your workout summary."; status.dataset.state = "success";
+      setPending(false); const first = form.querySelector("." + select.value + "-form input"); if (first) first.focus();
+    } catch (error) { status.textContent = error.message; status.dataset.state = "error"; setPending(false); }
   });
-}
-if (addButton) {
-  addButton.addEventListener("click", handleFormSubmit);
-}
-toast.addEventListener("animationend", handleToastAnimationEnd);
-
-document
-  .querySelectorAll("input")
-  .forEach(element => element.addEventListener("input", validateInputs));
+  window.addEventListener("beforeunload", event => { if (dirty || pending) { event.preventDefault(); event.returnValue = ""; } });
+  if (invalidId) { status.textContent = "This workout link is invalid. Return to the summary or start a new workout."; status.dataset.state = "error"; }
+  showType();
+})();

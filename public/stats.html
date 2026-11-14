@@ -1,43 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link
-    rel="stylesheet"
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-    crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <title>Fitness Chart</title>
-  </head>
-  <nav>
-    <a href="/">Fitness Tracker</a>
-  </nav>
-  <body>
-    <div class="container mt">
-      <h1 class="text-center">Workout Dashboard</h1>
-      <div class="row mt">
-        <div class="col-md-6">
-          <canvas id="canvas"></canvas>
-        </div>
-        <div class="col-md-6">
-          <canvas id="canvas2"></canvas>
-        </div>
-      </div>
-      <div class="row mt">
-        <div class="col-md-6">
-          <canvas id="canvas3"></canvas>
-        </div>
-        <div class="col-md-6">
-          <canvas id="canvas4"></canvas>
-        </div>
-      </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="/api.js"></script>
-    <script src="/stats.js"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+<title>Dashboard | Windjammer</title>
+</head>
+<body><a class="skip-link" href="#main">Skip to content</a><nav aria-label="Main navigation"><a class="brand" href="/">Windjammer <span>Workout Tracker</span></a><div class="nav-links"><a href="/">Summary</a><a href="/stats">Dashboard</a><button class="logout button-link" type="button">Sign out</button></div></nav><main id="main" class="wrapper dashboard"><header><h1>Workout dashboard</h1><p>Your latest seven saved sessions, oldest to newest.</p></header><p id="page-status" class="status" role="status" aria-live="polite"></p><button id="retry" type="button" hidden>Try again</button><div id="dashboard-content" hidden><div class="chart-grid"><section class="card chart"><h2>Session duration</h2><div class="chart-frame"><canvas id="canvas" role="img" aria-label="Session duration in minutes. Values are in the session table below.">See the session table below.</canvas></div></section><section class="card chart"><h2>Resistance volume</h2><div class="chart-frame"><canvas id="canvas2" role="img" aria-label="Session resistance volume in pounds, load times sets times repetitions. Values are in the session table below.">See the session table below.</canvas></div></section><section class="card chart"><h2>Exercises logged</h2><div class="chart-frame"><canvas id="canvas3" role="img" aria-label="Number of entries by exercise. Values are in the exercise table below.">See the exercise table below.</canvas></div></section><section class="card chart"><h2>Time by exercise</h2><div class="chart-frame"><canvas id="canvas4" role="img" aria-label="Minutes by exercise. Values are in the exercise table below.">See the exercise table below.</canvas></div></section></div><section class="card table-card"><h2>Session details</h2><p>Resistance volume = load × sets × repetitions. Sessions on the same day remain separate.</p><div class="table-scroll"><table id="session-table"><caption>Latest seven saved workout sessions</caption><thead><tr><th scope="col">Date</th><th scope="col">Exercises</th><th scope="col">Minutes</th><th scope="col">Volume (lb)</th><th scope="col">Distance (miles)</th></tr></thead><tbody></tbody></table></div></section><section class="card table-card"><h2>Exercise details</h2><div class="table-scroll"><table id="exercise-table"><caption>Exercise entries within these sessions</caption><thead><tr><th scope="col">Exercise</th><th scope="col">Type</th><th scope="col">Entries</th><th scope="col">Minutes</th></tr></thead><tbody></tbody></table></div></section></div></main><script src="/vendor/chart.umd.js"></script><script src="/api.js"></script><script src="/metrics.js"></script><script src="/stats.js"></script><script src="/auth.js"></script>
+</body>
 </html>
